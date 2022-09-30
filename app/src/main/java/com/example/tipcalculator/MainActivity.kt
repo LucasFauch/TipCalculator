@@ -5,10 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
 private fun calculateTip(
     amount: Double,
-    tipPercent: Double = 15.0
+    tipPercent: Double
 ) : String {
     val tip = tipPercent / 100 * amount
     return NumberFormat.getCurrencyInstance().format(tip)
@@ -62,7 +59,11 @@ fun DefaultPreview() {
 fun TipTimeScreen() {
     var amountInput by remember { mutableStateOf("") }
     val amount = amountInput.toDoubleOrNull() ?: 0.0
-    val tip = calculateTip(amount)
+
+    var percentInput by remember { mutableStateOf("") }
+    val percent = percentInput.toDoubleOrNull() ?: 0.0
+
+    val tip = calculateTip(amount, percent)
 
     Column(
         modifier = Modifier.padding(32.dp),
@@ -75,7 +76,12 @@ fun TipTimeScreen() {
         )
         Spacer(Modifier.height(16.dp))
         EditNumberField(value = amountInput,
-                        onValueChange = { amountInput = it })
+                        onValueChange = { amountInput = it },
+                        description = stringResource(R.string.cost_of_service))
+        Spacer(Modifier.height(16.dp))
+        EditNumberField(value = percentInput,
+            onValueChange = { percentInput = it },
+            description = stringResource(R.string.tip_percent))
         Spacer(Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.tip_amount, tip),
@@ -88,11 +94,12 @@ fun TipTimeScreen() {
 
 @Composable
 fun EditNumberField(value: String,
+                    description: String,
                     onValueChange: (String) -> Unit) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(stringResource(R.string.cost_of_service)) },
+        label = { Text(description) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
